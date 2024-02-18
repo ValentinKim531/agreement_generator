@@ -1,19 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:14-alpine
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data/
-    ports:
-      - "5413:5432"
-    environment:
-      POSTGRES_DB: "${DB_NAME}"
-      POSTGRES_USER: "${DB_USER}"
-      POSTGRES_PASSWORD: "${DB_PASSWORD}"
-    networks:
-      - autofillnetwork
-
   agreement_generator:
     build:
       context: .
@@ -24,17 +11,59 @@ services:
       - "8013:8000"
     volumes:
       - .:/agreement_generator
-    networks:
-      - autofillnetwork
-    links:
-      - db:db
-    depends_on:
-      - db
-
-
-networks:
-    autofillnetwork:
-      driver: bridge
+    environment:
+      - DATABASE_URL=postgresql://postgres:aAE6Da2*Bb63f6*befBCdf-2agAGAE5-@roundhouse.proxy.rlwy.net:17230/railway
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+#version: '3.8'
+#
+#services:
+#  db:
+#    image: postgres:14-alpine
+#    volumes:
+#      - ./data/postgres:/var/lib/postgresql/data/
+#    ports:
+#      - "5413:5432"
+#    environment:
+#      POSTGRES_DB: "${DB_NAME}"
+#      POSTGRES_USER: "${DB_USER}"
+#      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+#    networks:
+#      - autofillnetwork
+#
+#  agreement_generator:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    image: agreement_generator
+#    restart: always
+#    ports:
+#      - "8013:8000"
+#    volumes:
+#      - .:/agreement_generator
+#    networks:
+#      - autofillnetwork
+#    links:
+#      - db:db
+#    depends_on:
+#      - db
+#
+#
+#networks:
+#    autofillnetwork:
+#      driver: bridge
+#
+#
+#
