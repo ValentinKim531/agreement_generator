@@ -19,4 +19,4 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . /agreement_generator
 
 EXPOSE 8000
-CMD echo $DATABASE_URL && python manage.py migrate && python manage.py loaddata fixtures/dump.json && python manage.py runserver 0.0.0.0:env('PORT')
+CMD echo $DATABASE_URL && python manage.py migrate && python manage.py loaddata fixtures/dump.json && python manage.py runserver 0.0.0.0:$PORT
