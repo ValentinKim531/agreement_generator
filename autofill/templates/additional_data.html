@@ -1,0 +1,109 @@
+{% load static %}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дополнительные данные</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <style>
+        .error { color: red; font-size: 0.8em; }
+        body { padding-top: 20px; }
+        .container { max-width: 600px; }
+    </style>
+    {% load widget_tweaks %}
+</head>
+<body class="bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">
+            Найдена следующая информация о вас:
+        </h2>
+        <h3>
+            Заполните (или отредактируйте при необходимости) также следующие данные:
+        </h3>
+        <div class="card">
+            <div class="card-body">
+                <form method="post" class="form-horizontal">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <b>{{ form.city.label_tag }}</b> {{ form.city|add_class:"form-control" }}<br>
+                        {% if form.city.errors %}<div class="error">{{ form.city.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.name_ip_or_too.label_tag }}</b> {{ form.name_ip_or_too|add_class:"form-control" }}<br>
+                        {% if form.name_ip_or_too.errors %}<div class="error">{{ form.name_ip_or_too.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.name_director.label_tag }}</b> {{ form.name_director|add_class:"form-control" }}<br>
+                        {% if form.name_director.errors %}<div class="error">{{ form.name_director.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.initials.label_tag }}</b> {{ form.initials|add_class:"form-control" }}<br>
+                        {% if form.initials.errors %}<div class="error">{{ form.initials.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.location.label_tag }}</b> {{ form.location|add_class:"form-control" }}<br>
+                        {% if form.location.errors %}<div class="error">{{ form.location.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.IIK.label_tag }}</b> {{ form.IIK|add_class:"form-control" }}<br>
+                        {% if form.IIK.errors %}<div class="error">{{ form.IIK.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.BIK.label_tag }}</b> {{ form.BIK|add_class:"form-control" }}<br>
+                        {% if form.BIK.errors %}<div class="error">{{ form.BIK.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.bank.label_tag }}</b> {{ form.bank|add_class:"form-control" }}<br>
+                        {% if form.bank.errors %}<div class="error">{{ form.bank.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.phone.label_tag }}</b> {{ form.phone|add_class:"form-control" }}<br>
+                        {% if form.phone.errors %}<div class="error">{{ form.phone.errors }}</div>{% endif %}
+                    </div>
+                    {% if is_too_template %}
+                        <div class="form-group">
+                            <fieldset>
+                                <b>Контракт на основании (в родительном падеже):</b>
+                                {{ form.action }}
+                                {% if form.action.errors %}<div class="error">{{ form.action.errors }}</div>{% endif %}
+                                <div id="other_action_div" style="{% if form.other_action.value %}display: block{% else %}display: none{% endif %};">
+                                    {{ form.other_action|add_class:"form-control" }}
+                                    {% if form.other_action.errors %}<div class="error">{{ form.other_action.errors }}</div>{% endif %}
+                                </div>
+                            </fieldset>
+                        </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Заполнить документ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function toggleOtherAction() {
+                var actionValue = document.querySelector('input[name="action"]:checked').value;
+                var otherActionDiv = document.getElementById('other_action_div');
+                var otherActionInput = document.getElementById('id_other_action');
+                if (actionValue === 'other') {
+                    otherActionDiv.style.display = 'block';
+                    otherActionInput.required = true;
+                } else {
+                    otherActionDiv.style.display = 'none';
+                    otherActionInput.required = false;
+                }
+            }
+            toggleOtherAction();
+            document.querySelectorAll('input[name="action"]').forEach(function(radio) {
+                radio.addEventListener('change', toggleOtherAction);
+            });
+        });
+    </script>
+</body>
+</html>

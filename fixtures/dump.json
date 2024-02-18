@@ -1,0 +1,18 @@
+[
+{
+  "model": "autofill.documenttemplate",
+  "pk": 1,
+  "fields": {
+    "name": "ИП",
+    "template_file": "agreements_templates/IP.docx"
+  }
+},
+{
+  "model": "autofill.documenttemplate",
+  "pk": 2,
+  "fields": {
+    "name": "ТОО",
+    "template_file": "agreements_templates/TOO.docx"
+  }
+}
+]
