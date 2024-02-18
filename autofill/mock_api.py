@@ -11,7 +11,9 @@ def get_mock_api_response(iin_or_bin):
     }
 
     with requests_mock.Mocker() as m:
-        m.get(f"https://stat.gov.kz/api/juridical?bin={iin_or_bin}&lang=ru", json=mock_response)
-        response = requests.get(f"https://stat.gov.kz/api/juridical?bin={iin_or_bin}&lang=ru")
+        m.get(f"https://stat.gov.kz/api/juridical?bin={iin_or_bin}&lang=ru",
+              json=mock_response)
+        response = requests.get(f"https://stat.gov.kz/api/juridical?bin="
+                                f"{iin_or_bin}&lang=ru")
         return response.json()
 
