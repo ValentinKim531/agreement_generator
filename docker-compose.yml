@@ -12,7 +12,7 @@ services:
     volumes:
       - .:/agreement_generator
     environment:
-      - DATABASE_URL=postgresql://postgres:aAE6Da2*Bb63f6*befBCdf-2agAGAE5-@roundhouse.proxy.rlwy.net:17230/railway
+      - DATABASE_URL=${DATABASE_URL}
 
 
 
