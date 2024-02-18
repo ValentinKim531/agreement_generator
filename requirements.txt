@@ -11,6 +11,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 DAWG-Python==0.7.2
 distro==1.9.0
+dj-config-url==0.1.1
 Django==5.0.2
 django-environ==0.11.2
 django-widget-tweaks==1.5.0
