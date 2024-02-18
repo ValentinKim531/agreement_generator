@@ -19,7 +19,7 @@
 1. Клонирование репозитория:
 
 ```
-git clone https://yourrepositorylink.git
+git clone https://github.com/ValentinKim531/agreement_generator.git
 ```
 ```
 cd agreement_generator
