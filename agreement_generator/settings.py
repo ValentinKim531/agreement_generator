@@ -78,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "agreement_generator.wsgi.application"
 
+CSRF_TRUSTED_ORIGINS = ['https://agreementgenerator-production.up.railway.app']
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
