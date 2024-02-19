@@ -6,6 +6,13 @@ import re
 class InitialForm(forms.Form):
     iin_or_bin = forms.CharField(label='Введите ИИН/БИН', max_length=12)
 
+    def clean_iin_or_bin(self):
+        iin_or_bin = self.cleaned_data['iin_or_bin']
+        # Проверяем, состоит ли строка из 12 цифр
+        if not re.fullmatch(r'\d{12}', iin_or_bin):
+            raise ValidationError('ИИН/БИН должен состоять из 12 цифр.')
+        return iin_or_bin
+
 
 class AdditionalDataForm(forms.Form):
     IIK = forms.CharField(label='ИИК', max_length=20, required=False)

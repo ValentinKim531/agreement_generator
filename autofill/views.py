@@ -11,16 +11,25 @@ from .utils import (
 
 
 def initial_request(request):
+    error_message = None
     if request.method == "POST":
         form = InitialForm(request.POST)
         if form.is_valid():
-            iin_or_bin = form.cleaned_data.get("iin_or_bin")
+            iin_or_bin = form.cleaned_data["iin_or_bin"]
             response_data = get_api_response(iin_or_bin)
-            request.session["response_data"] = response_data
-            return redirect("fill_additional_data")
+            if "error" in response_data:
+                error_message = response_data["error"]
+            else:
+                request.session["response_data"] = response_data
+                return redirect("fill_additional_data")
     else:
         form = InitialForm()
-    return render(request, "initial_request.html", {"form": form})
+    return render(
+        request,
+        "initial_request.html",
+        {"form": form, "error_message": error_message}
+    )
+
 
 
 def fill_additional_data(request):
