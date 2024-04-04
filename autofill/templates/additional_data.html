@@ -11,16 +11,35 @@
         .error { color: red; font-size: 0.8em; }
         body { padding-top: 20px; }
         .container { max-width: 600px; }
+        .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    .custom-select-wrapper select {
+        display: inline-block;
+        width: 100%;
+        cursor: pointer;
+        padding: 10px;
+        outline: none;
+    }
+    .custom-select-wrapper:after {
+        content: "\25BC";
+        position: absolute;
+        top: 0;
+        right: 15px;
+        pointer-events: none;
+        color: #333;
+        font-size: 1em;
+        line-height: 40px;
+    }
     </style>
     {% load widget_tweaks %}
 </head>
 <body class="bg-light">
     <div class="container">
-        <h2 class="text-center mb-4">
-            Найдена следующая информация о вас:
-        </h2>
         <h3>
-            Заполните (или отредактируйте при необходимости) также следующие данные:
+            Заполните (или отредактируйте при необходимости) следующие данные:
         </h3>
         <div class="card">
             <div class="card-body">
@@ -55,8 +74,15 @@
                         {% if form.BIK.errors %}<div class="error">{{ form.BIK.errors }}</div>{% endif %}
                     </div>
                     <div class="form-group">
-                        <b>{{ form.bank.label_tag }}</b> {{ form.bank|add_class:"form-control" }}<br>
+                        <b>{{ form.bank.label_tag }}</b>
+                        <div class="custom-select-wrapper">
+                            {{ form.bank|add_class:"form-control custom-select" }}
+                        </div>
                         {% if form.bank.errors %}<div class="error">{{ form.bank.errors }}</div>{% endif %}
+                    </div><br>
+                    <div class="form-group" id="other_bank_container" style="display:none;">
+                        <b><label for="id_other_bank">Укажите наименование вашего Банка с учетом кавычек «»:</label></b>
+                        <input type="text" name="other_bank" id="id_other_bank" class="form-control"><br>
                     </div>
                     <div class="form-group">
                         <b>{{ form.phone.label_tag }}</b> {{ form.phone|add_class:"form-control" }}<br>
@@ -85,6 +111,7 @@
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.mask.js' %}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             function toggleOtherAction() {
@@ -104,6 +131,31 @@
                 radio.addEventListener('change', toggleOtherAction);
             });
         });
+        $(document).ready(function(){
+      $('#id_phone').mask('+7 000 000 00 00');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    var bankSelect = document.getElementById('id_bank');
+    var otherBankContainer = document.getElementById('other_bank_container');
+
+    function toggleOtherBankInput() {
+        if (bankSelect && otherBankContainer) {
+            otherBankContainer.style.display = bankSelect.value === 'other' ? '' : 'none';
+        }
+    }
+
+    if (bankSelect) {
+        bankSelect.addEventListener('change', toggleOtherBankInput);
+    }
+
+    toggleOtherBankInput();
+});
+
+
+
+
+
     </script>
 </body>
 </html>

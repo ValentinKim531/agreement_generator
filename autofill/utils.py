@@ -18,19 +18,16 @@ def generate_and_download_document(data):
     iin_or_bin = data.get("iin_or_bin", "")
 
     doc, is_too_template = get_document_template_and_path(iin_or_bin)
-    action_text = get_action_text(
-        data.get("action"), data.get("other_action", "").strip()
-    )
+    action_text = data.get("action_text", "Не указано")
     deistvuushego = get_deistvuushego(iin_or_bin)
 
-    # Формирование контекста
     context = {
-        "City": data.get("city", ""),
+        "City": " " + data.get("city", ""),
         "str_date": get_formatted_date(),
-        "name_IP": data.get("name_ip_or_too", "")
+        "name_IP": "«" + data.get("name_ip_or_too", "") + "»"
         if not is_too_template
         else "",
-        "name_TOO": data.get("name_ip_or_too", "")
+        "name_TOO": "«" + data.get("name_ip_or_too", "") + "»"
         if is_too_template
         else "",
         "deistvuushego": deistvuushego,
@@ -47,22 +44,19 @@ def generate_and_download_document(data):
         "is_too_template": is_too_template,
     }
 
-    # Заполнение шаблона и сохранение документа
     doc.render(context)
     bio = io.BytesIO()
     doc.save(bio)
     bio.seek(0)
 
-    # Название файла с учетом наименования ИП/ТОО
     name_ip_or_too = (
         data.get("name_ip_or_too", "")
         .replace('"', "")
         .replace("/", "")
         .replace("\\", "")
-    )  # Удаление потенциально проблемных символов
+    )
     filename = f"{name_ip_or_too} Согласие.docx"
 
-    # Возврат файла пользователю
     return FileResponse(bio, as_attachment=True, filename=filename)
 
 
@@ -107,9 +101,11 @@ def get_deistvuushego(iin_or_bin):
 
 
 def get_document_template_and_path(iin_or_bin):
-    template_filename = (
-        "TOO.docx" if iin_or_bin[4] in ("4", "5") else "IP.docx"
-    )
+    if len(iin_or_bin) >= 5:
+        template_filename = "TOO.docx" if iin_or_bin[4] in ("4", "5") else "IP.docx"
+    else:
+        template_filename = "IP.docx"
+
     template_path = os.path.join(
         settings.BASE_DIR, "agreements_templates", template_filename
     )
@@ -159,42 +155,34 @@ def inflect_fio_in_genitive(full_name):
 
 
 def extract_title_ip(original_string):
-    # Удаление "ИП " из строки, даже если оно находится внутри кавычек
     cleaned_string = re.sub(r'(^|\s)"?ИП\s+', r'\1"', original_string)
 
-    # Поиск и возвращение строки в кавычках, если они присутствуют
     match = re.search(r'"?([^"]+)"?$', cleaned_string)
     if match:
-        # Возвращаем результат в двойных кавычках
-        return f'"{match.group(1)}"'
+        return f'{match.group(1)}'
     else:
-        # Если кавычек нет, возвращаем всю строку в двойных кавычках
-        return f'"{cleaned_string}"'
+        return f'{cleaned_string}'
 
 
 def extract_title_too(original_string):
-    # Удаление "ТОО " из начала строки, если оно присутствует,
-    # включая кавычки вокруг ТОО
     cleaned_string = re.sub(
         r'^"ТОО\s+(.*?)"$', r"\1", original_string
     )
 
-    # Удаление "ТОО " без кавычек в начале, если оно присутствует
     if not cleaned_string.startswith('"'):
         cleaned_string = re.sub(r"^ТОО\s+", "", cleaned_string)
 
-    # Удаление лишних кавычек по краям
     cleaned_string = cleaned_string.strip('"')
 
-    # Возвращение результата в двойных кавычках
-    return f'"{cleaned_string}"'
+    return f'{cleaned_string}'
 
 
 def format_location(location):
-    # 1. Удаление "Г.А." и предшествующего слова
+    if not location or location.isspace():
+        return ""
+
     location = re.sub(r"\b[А-Яа-я]+\s+Г\.А\.\,?\s*", "", location)
 
-    # 2. Приведение аббревиатур к нижнему регистру
     abbreviations = [
         "Д\.",
         "Мкр\.",
@@ -214,44 +202,53 @@ def format_location(location):
             flags=re.IGNORECASE,
         )
 
-    # 3. Сокращение "ГОРОД" до "г." и обработка "Г."
-    # в нижнем регистре с пробелом после точки
-    location = re.sub(
-        r"\bГОРОД\b", "г.", location, flags=re.IGNORECASE
-    )
-    location = re.sub(
-        r"\bГ\.\s*", "г. ", location, flags=re.IGNORECASE
-    )
+    location = re.sub(r"\bГОРОД\b", "г.", location, flags=re.IGNORECASE)
+    location = re.sub(r"\bГ\.\s*", "г. ", location, flags=re.IGNORECASE)
 
-    # Добавление "Республика Казахстан", если отсутствует
-    if not location.startswith("Республика Казахстан"):
+    # Добавляем "Республика Казахстан" только если location не пуста
+    if not location.startswith("Республика Казахстан") and location:
         location = "Республика Казахстан, " + location
 
-    # Приведение первого символа каждого слова к верхнему регистру,
-    # кроме специальных слов и аббревиатур
     location = " ".join(
-        word.title()
-        if not re.match(
+        word.title() if not re.match(
             r"^(г\.|д\.|мкр\.|ул\.|пр\.|с\.о\.|н\.п\.|зд\.|ст-е|кв\.)$",
             word.lower(),
-        )
-        else word
-        for word in location.split()
+        ) else word for word in location.split()
     )
 
     return location
 
 
+
 def fio_to_initials(full_name):
-    # Разделяем полное имя на компоненты
     name_parts = re.split(r"\s+", full_name.strip())
-    # Формируем фамилию и инициалы
-    if len(name_parts) == 3:  # Фамилия Имя Отчество
+
+    if len(name_parts) == 3:
         initials = (
             f"{name_parts[0]} {name_parts[1][0]}.{name_parts[2][0]}."
         )
-    elif len(name_parts) == 2:  # Фамилия Имя
+    elif len(name_parts) == 2:
         initials = f"{name_parts[0]} {name_parts[1][0]}."
-    else:  # Только Фамилия или однословное имя
+    else:
         initials = full_name
     return initials.title()
+
+
+def format_phone_number(phone_number):
+    if not phone_number:
+        return ""
+
+    phone_number = phone_number.replace(" ", "")
+
+    if phone_number.startswith('+7') and len(phone_number) == 12:
+        formatted_number = (f"+{phone_number[1]} {phone_number[2:5]} "
+                            f"{phone_number[5:8]} {phone_number[8:10]} "
+                            f"{phone_number[10:]}")
+    elif phone_number.startswith('8') and len(phone_number) == 11:
+        formatted_number = (f"+7 {phone_number[1:4]} {phone_number[4:7]} "
+                            f"{phone_number[7:9]} {phone_number[9:]}")
+    else:
+        formatted_number = phone_number
+
+    return formatted_number
+

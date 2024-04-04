@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import re
+from autofill.meta.bank_list import BANK_CHOICES
 
 
 class InitialForm(forms.Form):
@@ -8,44 +9,79 @@ class InitialForm(forms.Form):
 
     def clean_iin_or_bin(self):
         iin_or_bin = self.cleaned_data['iin_or_bin']
-        # Проверяем, состоит ли строка из 12 цифр
         if not re.fullmatch(r'\d{12}', iin_or_bin):
             raise ValidationError('ИИН/БИН должен состоять из 12 цифр.')
         return iin_or_bin
 
 
 class AdditionalDataForm(forms.Form):
-    IIK = forms.CharField(label='ИИК', max_length=20, required=False)
-    BIK = forms.CharField(label='БИК', max_length=8, required=False)
+    IIK = forms.CharField(
+        label='ИИК (номер лицевого счета) в вашем Банке',
+        max_length=20,
+        required=False,
+        initial='KZ'
+    )
+    BIK = forms.CharField(
+        label='БИК вашего Банка',
+        max_length=8,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'пример: CASPKZKA'})
+    )
     name_ip_or_too = forms.CharField(
-        label='Наиманование ИП/ТОО (без аббревиатур "ИП/ТОО":)',
-        max_length=100, required=False
-    )
-    bank = forms.CharField(
-        label='Наименование вашего банка',
-        max_length=50,
-        required=False
-    )
-    phone = forms.CharField(label='Телефон', max_length=20, required=False)
-    city = forms.CharField(
-        label='Город, где расположена компания:',
+        label='Наиманование ИП/ТОО без кавычек и без аббревиатур ИП/ТОО)',
         max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'пример: Береке'})
+    )
+    bank = forms.ChoiceField(
+        label='Наименование вашего Банка (выберите из выпадающего списка)',
+        choices=BANK_CHOICES,
         required=False
+    )
+    other_bank = forms.CharField(
+        label='Укажите наименование вашего Банка',
+        max_length=100,
+        required=False,
+        initial='АО «»',
+        widget=forms.TextInput(attrs={
+            'style': 'display:none;',
+            'placeholder': 'пример: АО «Народный Банк Казахстана»'})
+    )
+    phone = forms.CharField(
+        label='Телефон (в формате +7 XXX XXX XX XX)',
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'пример: + 7 701 777 77 77'})
+    )
+    city = forms.CharField(
+        label='Город, где расположена компания(без обозначения "г./город", только название):',
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'пример: Алматы'})
     )
     location = forms.CharField(
         label='Адрес ИП/ТОО',
         max_length=200,
-        required=False
+        required=False,
+        widget=forms.Textarea(
+            attrs={'placeholder': 'пример: Республика Казахстан, 050051, '
+                                  'г. Алматы, Медеуский Район, мкр. Самал-2, д. 1',
+                   'rows': 2,
+                   'style': 'resize:none;'
+                   },
+        )
     )
     name_director = forms.CharField(
         label='Полное ФИО директора (в родительном падеже):',
         max_length=100,
-        required=False
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'пример: Ахметова Армана Бериковича'})
     )
     initials = forms.CharField(
         label='Фамилия и инициалы директора',
         max_length=100,
-        required=False
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'пример: Ахметов А.Б.'})
     )
 
     ACTION_CHOICES = [
@@ -82,9 +118,3 @@ class AdditionalDataForm(forms.Form):
                 'БИК должен состоять из 8 буквенно-цифровых символов.'
             )
         return bik
-
-    def clean_phone(self):
-        phone = self.cleaned_data['phone']
-        if not re.match(r"^\+?1?\d{8,15}$", phone):
-            raise ValidationError('Неверный формат номера телефона.')
-        return phone

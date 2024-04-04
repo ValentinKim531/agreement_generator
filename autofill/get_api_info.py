@@ -1,6 +1,7 @@
 import requests
 from requests.exceptions import RequestException
 
+
 def get_api_response(iin_or_bin):
     try:
         response = requests.get(f"https://apiba.prgapp.kz/CompanyFullInfo?id={iin_or_bin}&lang=ru")
@@ -16,7 +17,7 @@ def get_api_response(iin_or_bin):
             }
             return extracted_data
         else:
-            return {"error": f"Ошибка запроса: статус {response.status_code}, введите верный ИИН/БИН"}
+            return {}
     except RequestException as e:
         return {"error": f"Ошибка запроса: {e}"}
 
