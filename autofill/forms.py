@@ -28,7 +28,7 @@ class AdditionalDataForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'пример: CASPKZKA'})
     )
     name_ip_or_too = forms.CharField(
-        label='Наиманование ИП/ТОО без кавычек и без аббревиатур ИП/ТОО)',
+        label='Наиманование ИП/ТОО без кавычек и без аббревиатур ИП/ТОО',
         max_length=100,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'пример: Береке'})

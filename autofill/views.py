@@ -13,26 +13,20 @@ from django.contrib import messages
 
 
 def initial_request(request):
-    error_message = None
     if request.method == "POST":
         form = InitialForm(request.POST)
         if form.is_valid():
             iin_or_bin = form.cleaned_data["iin_or_bin"]
             response_data = get_api_response(iin_or_bin)
             if "error" in response_data:
-                error_message = response_data["error"]
-                messages.error(request, error_message)
-            else:
-                request.session["iin_or_bin"] = iin_or_bin
-                request.session["response_data"] = response_data
-                return redirect("fill_additional_data")
+                if not messages.get_messages(request):
+                    messages.warning(request, "Данные по ИИН не найдены. Пожалуйста, заполните информацию вручную.")
+            request.session["iin_or_bin"] = iin_or_bin
+            request.session["response_data"] = response_data
+            return redirect("fill_additional_data")
     else:
         form = InitialForm()
-    return render(
-        request,
-        "initial_request.html",
-        {"form": form, "error_message": error_message}
-    )
+    return render(request, "initial_request.html", {"form": form})
 
 
 def fill_additional_data(request):
@@ -73,8 +67,6 @@ def fill_additional_data(request):
         edited_data.pop('other_action', None)
 
         return generate_and_download_document(edited_data)
-    elif not form.is_valid():
-        messages.error(request, "В форме обнаружены ошибки. Пожалуйста, исправьте их.")
 
     return render(request, "additional_data.html", {
         "form": form,

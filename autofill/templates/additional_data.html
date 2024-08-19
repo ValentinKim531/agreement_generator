@@ -39,6 +39,15 @@
 <body class="bg-light">
     <div class="container">
         <h3>
+            {% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
             Заполните (или отредактируйте при необходимости) следующие данные:
         </h3>
         <div class="card">
