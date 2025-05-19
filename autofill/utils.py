@@ -10,6 +10,7 @@ import requests
 import xml.etree.ElementTree as ET
 import re
 
+from autofill.meta.commission_formatting import COMMISSION_MAP_SUBJECT, COMMISSION_MAP_OBJECT
 
 locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
@@ -42,6 +43,8 @@ def generate_and_download_document(data):
         "phone": data.get("phone", ""),
         "initials": data.get("initials", ""),
         "is_too_template": is_too_template,
+        "base_commission": get_commission_subject(data.get("base_commission") or 2),
+        "increased_commission": get_commission_object(data.get("increased_commission") or 4),
     }
 
     doc.render(context)
@@ -252,3 +255,10 @@ def format_phone_number(phone_number):
 
     return formatted_number
 
+
+def get_commission_subject(value):
+    return COMMISSION_MAP_SUBJECT.get(int(value), f"{value}%")
+
+
+def get_commission_object(value):
+    return COMMISSION_MAP_OBJECT.get(int(value), f"{value}%")
