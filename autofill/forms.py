@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 import re
 from autofill.meta.bank_list import BANK_CHOICES
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class InitialForm(forms.Form):
@@ -101,6 +102,23 @@ class AdditionalDataForm(forms.Form):
         label='Введите, на основании чего действует контракт '
               '(в родительном падеже)',
         max_length=100, required=False
+    )
+    base_commission = forms.DecimalField(
+        label='Базовое вознаграждение (%)',
+        max_digits=2,
+        required=False,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        initial=2,
+        widget=forms.NumberInput(attrs={'placeholder': '2', 'min': '1', 'max': '10'})
+    )
+
+    increased_commission = forms.DecimalField(
+        label='Повышенное вознаграждение (%)',
+        max_digits=2,
+        required=False,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        initial=4,
+        widget=forms.NumberInput(attrs={'placeholder': '4', 'min': '1', 'max': '10'})
     )
 
     def clean_IIK(self):

@@ -97,6 +97,15 @@
                         <b>{{ form.phone.label_tag }}</b> {{ form.phone|add_class:"form-control" }}<br>
                         {% if form.phone.errors %}<div class="error">{{ form.phone.errors }}</div>{% endif %}
                     </div>
+                    <div class="form-group">
+                        <b>{{ form.base_commission.label_tag }}</b> {{ form.base_commission|add_class:"form-control" }}<br>
+                        {% if form.base_commission.errors %}<div class="error">{{ form.base_commission.errors }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <b>{{ form.increased_commission.label_tag }}</b> {{ form.increased_commission|add_class:"form-control" }}<br>
+                        {% if form.increased_commission.errors %}<div class="error">{{ form.increased_commission.errors }}</div>{% endif %}
+                    </div>
+
                     {% if is_too_template %}
                         <div class="form-group">
                             <fieldset>
