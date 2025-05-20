@@ -58,7 +58,7 @@ def generate_and_download_document(data):
         .replace("/", "")
         .replace("\\", "")
     )
-    filename = f"{name_ip_or_too} Согласие.docx"
+    filename = f"{'ТОО' if is_too_template else 'ИП'}_{name_ip_or_too}_Согласие.docx"
 
     return FileResponse(bio, as_attachment=True, filename=filename)
 
